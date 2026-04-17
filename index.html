@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Generator "Baca Selengkapnya" WhatsApp</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 640px;
+      margin: 24px auto;
+      padding: 0 16px;
+      line-height: 1.5;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+    textarea, input[type="number"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      margin-top: 4px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 12px;
+      margin-right: 8px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #f3f4f6;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    #output {
+      margin-top: 8px;
+    }
+    small {
+      color: #6b7280;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Generator "Baca Selengkapnya" WhatsApp</h1>
+  <p>
+    Masukkan teks yang ingin <b>muncul sebelum</b> dan <b>setelah</b> tombol
+    <i>Baca selengkapnya</i>. Lalu klik <b>Buat Teks</b> dan salin hasilnya ke WhatsApp.
+  </p>
+
+  <label for="front">Teks depan (yang kelihatan sebelum Read More)</label>
+  <textarea id="front" rows="3"
+    placeholder="Contoh: Cuma mau bilang sesuatu ke kamu..."></textarea>
+
+  <label for="back">Teks belakang (yang disembunyikan di balik Read More)</label>
+  <textarea id="back" rows="5"
+    placeholder="Contoh: Sebenarnya aku suka sama kamu dari dulu 😄"></textarea>
+
+  <label for="repeat">
+    Jumlah karakter tak terlihat
+    <small>(biarkan default kalau tidak paham)</small>
+  </label>
+  <input id="repeat" type="number" min="500" max="8000" value="3000">
+
+  <div>
+    <button id="generate">Buat Teks</button>
+    <button id="copy" disabled>Salin ke Clipboard</button>
+  </div>
+
+  <label for="output" style="margin-top: 16px;">
+    Hasil (copy & paste ke pesan WhatsApp)
+  </label>
+  <textarea id="output" rows="6" readonly></textarea>
+  <p><small>
+    Catatan: Tombol "Baca selengkapnya" adalah bawaan aplikasi WhatsApp, tidak bisa diganti tulisannya.
+    Yang bisa di-custom hanya teks sebelum dan sesudahnya.
+  </small></p>
+
+  <script>
+    // Karakter tak terlihat yang dipakai untuk memicu "Baca selengkapnya"
+    // U+034F COMBINING GRAPHEME JOINER
+    const HIDDEN_CHAR = "\u034F";
+
+    function generateReadMoreText() {
+      const front = document.getElementById("front").value || "";
+      const back = document.getElementById("back").value || "";
+      const repeatInput = document.getElementById("repeat").value;
+      const repeat = parseInt(repeatInput, 10) || 3000;
+
+      let hidden = "";
+      for (let i = 0; i < repeat; i++) {
+        hidden += HIDDEN_CHAR;
+      }
+
+      const result = front + hidden + back;
+      const output = document.getElementById("output");
+      output.value = result;
+
+      document.getElementById("copy").disabled = !result;
+    }
+
+    async function copyToClipboard() {
+      const output = document.getElementById("output");
+      if (!output.value) return;
+
+      try {
+        await navigator.clipboard.writeText(output.value);
+        alert("Teks berhasil disalin. Tempel di WhatsApp.");
+      } catch (err) {
+        // Fallback untuk browser lama
+        output.focus();
+        output.select();
+        document.execCommand("copy");
+        alert("Teks sudah dipilih. Silakan salin manual (Ctrl+C / tekan Salin).");
+      }
+    }
+
+    document.getElementById("generate").addEventListener("click", generateReadMoreText);
+    document.getElementById("copy").addEventListener("click", copyToClipboard);
+  </script>
+</body>
+</html>
